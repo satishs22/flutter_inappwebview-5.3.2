@@ -20,6 +20,7 @@ import androidx.webkit.WebViewFeature;
 import com.pichillilorenzo.flutter_inappwebview.InAppWebViewFlutterPlugin;
 import com.pichillilorenzo.flutter_inappwebview.InAppWebViewMethodHandler;
 import com.pichillilorenzo.flutter_inappwebview.plugin_scripts_js.JavaScriptBridgeJS;
+import com.pichillilorenzo.flutter_inappwebview.plugin_scripts_js.PrintJS;
 import com.pichillilorenzo.flutter_inappwebview.pull_to_refresh.PullToRefreshLayout;
 import com.pichillilorenzo.flutter_inappwebview.pull_to_refresh.PullToRefreshOptions;
 import com.pichillilorenzo.flutter_inappwebview.types.URLRequest;
@@ -128,10 +129,12 @@ public class FlutterWebView implements PlatformView {
         String historyUrl = initialData.get("historyUrl");
         webView.loadDataWithBaseURL(baseUrl, data, mimeType, encoding, historyUrl);
       }
-      else if (initialUrlRequest != null) {
+
         URLRequest urlRequest = URLRequest.fromMap(initialUrlRequest);
-        webView.loadUrl(urlRequest);
-      }
+      Log.d(LOG_TAG, "Loading URL: " + urlRequest);
+      assert urlRequest != null;
+      webView.loadUrl(urlRequest);
+
     }
   }
 
