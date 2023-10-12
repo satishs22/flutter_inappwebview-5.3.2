@@ -26,21 +26,12 @@ class InAppWebViewStatic: NSObject, FlutterPlugin {
     }
     
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        let arguments = call.arguments as? NSDictionary
-        
+        //let arguments = call.arguments as? NSDictionary
         switch call.method {
             case "getDefaultUserAgent":
                 InAppWebViewStatic.getDefaultUserAgent(completionHandler: { (value) in
                     result(value)
                 })
-                break
-            case "handlesURLScheme":
-                let urlScheme = arguments!["urlScheme"] as! String
-                if #available(iOS 11.0, *) {
-                    result(WKWebView.handlesURLScheme(urlScheme))
-                } else {
-                    result(false)
-                }
                 break
             default:
                 result(FlutterMethodNotImplemented)

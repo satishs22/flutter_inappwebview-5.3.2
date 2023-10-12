@@ -26,7 +26,6 @@ public class SwiftFlutterPlugin: NSObject, FlutterPlugin {
     
     static var instance: SwiftFlutterPlugin?
     var registrar: FlutterPluginRegistrar?
-    var platformUtil: PlatformUtil?
     var inAppWebViewStatic: InAppWebViewStatic?
     var myCookieManager: Any?
     var myWebStorageManager: Any?
@@ -44,7 +43,6 @@ public class SwiftFlutterPlugin: NSObject, FlutterPlugin {
         self.registrar = registrar
         registrar.register(FlutterWebViewFactory(registrar: registrar) as FlutterPlatformViewFactory, withId: "com.pichillilorenzo/flutter_inappwebview")
         
-        platformUtil = PlatformUtil(registrar: registrar)
         inAppBrowserManager = InAppBrowserManager(registrar: registrar)
         headlessInAppWebViewManager = HeadlessInAppWebViewManager(registrar: registrar)
         chromeSafariBrowserManager = ChromeSafariBrowserManager(registrar: registrar)

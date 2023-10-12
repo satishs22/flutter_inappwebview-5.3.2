@@ -16,7 +16,7 @@ import AVFoundation
 public class HeadlessInAppWebViewManager: NSObject, FlutterPlugin {
     static var registrar: FlutterPluginRegistrar?
     static var channel: FlutterMethodChannel?
-    static var webViews: [String: HeadlessInAppWebView] = [:]
+    var flutterWebViews: [String: FlutterWebViewController] = [:]
     
     public static func register(with registrar: FlutterPluginRegistrar) {
         
@@ -31,12 +31,16 @@ public class HeadlessInAppWebViewManager: NSObject, FlutterPlugin {
     
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let arguments = call.arguments as? NSDictionary
-        let id: String = arguments!["id"] as! String
+        let uuid: String = arguments!["uuid"] as! String
 
         switch call.method {
-            case "run":
+            case "createHeadlessWebView":
                 let params = arguments!["params"] as! [String: Any?]
-                HeadlessInAppWebViewManager.run(id: id, params: params)
+                createHeadlessWebView(uuid: uuid, params: params)
+                result(true)
+                break
+            case "disposeHeadlessWebView":
+                disposeHeadlessWebView(uuid: uuid)
                 result(true)
                 break
             default:
@@ -45,16 +49,17 @@ public class HeadlessInAppWebViewManager: NSObject, FlutterPlugin {
         }
     }
     
-    public static func run(id: String, params: [String: Any?]) {
-        let flutterWebView = FlutterWebViewController(registrar: HeadlessInAppWebViewManager.registrar!,
+    public func createHeadlessWebView(uuid: String, params: [String: Any?]) {
+        let controller = FlutterWebViewController(registrar: HeadlessInAppWebViewManager.registrar!,
             withFrame: CGRect.zero,
-            viewIdentifier: id,
-            params: params as NSDictionary)
-        let headlessInAppWebView = HeadlessInAppWebView(id: id, flutterWebView: flutterWebView)
-        HeadlessInAppWebViewManager.webViews[id] = headlessInAppWebView
-        
-        headlessInAppWebView.prepare(params: params as NSDictionary)
-        headlessInAppWebView.onWebViewCreated()
-        flutterWebView.makeInitialLoad(params: params as NSDictionary)
+            viewIdentifier: uuid,
+            arguments: params as NSDictionary)
+        flutterWebViews[uuid] = controller
+    }
+    
+    public func disposeHeadlessWebView(uuid: String) {
+        if let _ = flutterWebViews[uuid] {
+            flutterWebViews.removeValue(forKey: uuid)
+        }
     }
 }

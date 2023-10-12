@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import 'main.dart';
 
@@ -39,40 +38,6 @@ class _InAppWebViewExampleScreenState extends State<InAppWebViewExampleScreen> {
   @override
   void initState() {
     super.initState();
-
-    webViewController?.loadUrl(
-        urlRequest: URLRequest(url: Uri.parse("https://github.com/flutter")));
-
-    contextMenu = ContextMenu(
-        menuItems: [
-          ContextMenuItem(
-              androidId: 1,
-              iosId: "1",
-              title: "Special",
-              action: () async {
-                print("Menu item Special clicked!");
-                print(await webViewController?.getSelectedText());
-                await webViewController?.clearFocus();
-              })
-        ],
-        options: ContextMenuOptions(hideDefaultSystemContextMenuItems: false),
-        onCreateContextMenu: (hitTestResult) async {
-          print("onCreateContextMenu");
-          print(hitTestResult.extra);
-          print(await webViewController?.getSelectedText());
-        },
-        onHideContextMenu: () {
-          print("onHideContextMenu");
-        },
-        onContextMenuActionItemClicked: (contextMenuItemClicked) async {
-          var id = (Platform.isAndroid)
-              ? contextMenuItemClicked.androidId
-              : contextMenuItemClicked.iosId;
-          print("onContextMenuActionItemClicked: " +
-              id.toString() +
-              " " +
-              contextMenuItemClicked.title);
-        });
 
     pullToRefreshController = PullToRefreshController(
       options: PullToRefreshOptions(
@@ -134,6 +99,7 @@ class _InAppWebViewExampleScreenState extends State<InAppWebViewExampleScreen> {
                       this.url = url.toString();
                       urlController.text = this.url;
                     });
+                    print("onLoadStart:$url");
                   },
                   androidOnPermissionRequest:
                       (controller, origin, resources) async {
@@ -141,40 +107,18 @@ class _InAppWebViewExampleScreenState extends State<InAppWebViewExampleScreen> {
                         resources: resources,
                         action: PermissionRequestResponseAction.GRANT);
                   },
-                  shouldOverrideUrlLoading:
-                      (controller, navigationAction) async {
-                    var uri = navigationAction.request.url;
 
-                    if (![
-                      "http",
-                      "https",
-                      "file",
-                      "chrome",
-                      "data",
-                      "javascript",
-                      "about"
-                    ].contains(uri.scheme)) {
-                      if (await canLaunch(url)) {
-                        // Launch the App
-                        await launch(
-                          url,
-                        );
-                        // and cancel the request
-                        return NavigationActionPolicy.CANCEL;
-                      }
-                    }
-
-                    return NavigationActionPolicy.ALLOW;
-                  },
                   onLoadStop: (controller, url) async {
                     pullToRefreshController.endRefreshing();
                     setState(() {
                       this.url = url.toString();
                       urlController.text = this.url;
                     });
+                    print("onLoadStop:$url");
                   },
                   onLoadError: (controller, url, code, message) {
                     pullToRefreshController.endRefreshing();
+                    print("onLoadError:$url");
                   },
                   onProgressChanged: (controller, progress) {
                     if (progress == 100) {
@@ -190,6 +134,7 @@ class _InAppWebViewExampleScreenState extends State<InAppWebViewExampleScreen> {
                       this.url = url.toString();
                       urlController.text = this.url;
                     });
+                    print("onUpdateVisitedHistory:$url");
                   },
                   onConsoleMessage: (controller, consoleMessage) {
                     print(consoleMessage);

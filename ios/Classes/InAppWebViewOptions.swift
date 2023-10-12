@@ -18,6 +18,7 @@ public class InAppWebViewOptions: Options<InAppWebView> {
     var userAgent = ""
     var applicationNameForUserAgent = ""
     var javaScriptEnabled = true
+    var debuggingEnabled = true
     var javaScriptCanOpenWindowsAutomatically = false
     var mediaPlaybackRequiresUserGesture = true
     var verticalScrollBarEnabled = true
@@ -34,8 +35,6 @@ public class InAppWebViewOptions: Options<InAppWebView> {
     var disableHorizontalScroll = false
     var disableContextMenu = false
     var supportZoom = true
-    var allowUniversalAccessFromFileURLs = false
-    var allowFileAccessFromFileURLs = false
 
     var disallowOverScroll = false
     var enableViewportScale = false
@@ -61,25 +60,9 @@ public class InAppWebViewOptions: Options<InAppWebView> {
     var maximumZoomScale = 1.0
     var minimumZoomScale = 1.0
     var contentInsetAdjustmentBehavior = 2 // UIScrollView.ContentInsetAdjustmentBehavior.never
-    var isDirectionalLockEnabled = false
-    var mediaType: String? = nil
-    var pageZoom = 1.0
-    var limitsNavigationsToAppBoundDomains = false
-    var useOnNavigationResponse = false
-    var applePayAPIEnabled = false
-    var allowingReadAccessTo: String? = nil
-    var disableLongPressContextMenuOnLinks = false
     
     override init(){
         super.init()
-    }
-    
-    override func parse(options: [String: Any?]) -> InAppWebViewOptions {
-        let _ = super.parse(options: options)
-        if #available(iOS 13.0, *) {} else {
-            applePayAPIEnabled = false
-        }
-        return self
     }
     
     override func getRealOptions(obj: InAppWebView?) -> [String: Any?] {
@@ -93,11 +76,12 @@ public class InAppWebViewOptions: Options<InAppWebView> {
                 realOptions["allowsLinkPreview"] = webView.allowsLinkPreview
                 realOptions["allowsPictureInPictureMediaPlayback"] = configuration.allowsPictureInPictureMediaPlayback
             }
+            realOptions["javaScriptEnabled"] = configuration.preferences.javaScriptEnabled
             realOptions["javaScriptCanOpenWindowsAutomatically"] = configuration.preferences.javaScriptCanOpenWindowsAutomatically
             if #available(iOS 10.0, *) {
                 realOptions["mediaPlaybackRequiresUserGesture"] = configuration.mediaTypesRequiringUserActionForPlayback == .all
                 realOptions["ignoresViewportScaleLimits"] = configuration.ignoresViewportScaleLimits
-                realOptions["dataDetectorTypes"] = Util.getDataDetectorTypeString(type: configuration.dataDetectorTypes)
+                realOptions["dataDetectorTypes"] = InAppWebView.getDataDetectorTypeString(type: configuration.dataDetectorTypes)
             } else {
                 realOptions["mediaPlaybackRequiresUserGesture"] = configuration.mediaPlaybackRequiresUserAction
             }
@@ -115,23 +99,13 @@ public class InAppWebViewOptions: Options<InAppWebView> {
                 realOptions["accessibilityIgnoresInvertColors"] = webView.accessibilityIgnoresInvertColors
                 realOptions["contentInsetAdjustmentBehavior"] = webView.scrollView.contentInsetAdjustmentBehavior.rawValue
             }
-            realOptions["decelerationRate"] = Util.getDecelerationRateString(type: webView.scrollView.decelerationRate)
+            realOptions["decelerationRate"] = InAppWebView.getDecelerationRateString(type: webView.scrollView.decelerationRate)
             realOptions["alwaysBounceVertical"] = webView.scrollView.alwaysBounceVertical
             realOptions["alwaysBounceHorizontal"] = webView.scrollView.alwaysBounceHorizontal
             realOptions["scrollsToTop"] = webView.scrollView.scrollsToTop
             realOptions["isPagingEnabled"] = webView.scrollView.isPagingEnabled
             realOptions["maximumZoomScale"] = webView.scrollView.maximumZoomScale
             realOptions["minimumZoomScale"] = webView.scrollView.minimumZoomScale
-            realOptions["allowUniversalAccessFromFileURLs"] = configuration.value(forKey: "allowUniversalAccessFromFileURLs")
-            realOptions["allowFileAccessFromFileURLs"] = configuration.preferences.value(forKey: "allowFileAccessFromFileURLs")
-            realOptions["isDirectionalLockEnabled"] = webView.scrollView.isDirectionalLockEnabled
-            realOptions["javaScriptEnabled"] = configuration.preferences.javaScriptEnabled
-            if #available(iOS 14.0, *) {
-                realOptions["mediaType"] = webView.mediaType
-                realOptions["pageZoom"] = Float(webView.pageZoom)
-                realOptions["limitsNavigationsToAppBoundDomains"] = configuration.limitsNavigationsToAppBoundDomains
-                realOptions["javaScriptEnabled"] = configuration.defaultWebpagePreferences.allowsContentJavaScript
-            }
         }
         return realOptions
     }
